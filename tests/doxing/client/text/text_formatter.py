@@ -49,3 +49,7 @@ class TestTextFormatter(unittest.TestCase):
     def test_underscore_text(self):
         self._test_formatter("__{}__".format(self.neutral_text),
                              "[u]{}[/u]".format(self.neutral_text))
+
+    def test_strikethrough_text(self):
+        self._test_formatter("~~{}~~".format(self.neutral_text),
+                             "[s]{}[/s]".format(self.neutral_text))
