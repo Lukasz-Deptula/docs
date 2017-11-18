@@ -45,3 +45,7 @@ class TestTextFormatter(unittest.TestCase):
     def test_bold_text(self):
         self._test_formatter("**{}**".format(self.neutral_text),
                              "[b]{}[/b]".format(self.neutral_text))
+
+    def test_underscore_text(self):
+        self._test_formatter("__{}__".format(self.neutral_text),
+                             "[u]{}[/u]".format(self.neutral_text))

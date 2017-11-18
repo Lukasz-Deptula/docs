@@ -11,16 +11,19 @@ def compare_substring(text, start, pattern):
 
 
 is_bold = partial(compare_substring, pattern="**")
+is_underscore = partial(compare_substring, pattern="__")
 
 
 class TextFormatter(object):
     def __init__(self):
         self._bold = None
+        self._underscore = None
         self._printed_character = None
         self._output_text = None
         self._original_text = None
 
     def _reset_formatter(self):
+        self._underscore = False
         self._bold = False
         self._printed_character = -1
         self._output_text = []
@@ -46,19 +49,28 @@ class TextFormatter(object):
             if is_bold(text, position):
                 self._change_bold(position)
 
+            if is_underscore(text, position):
+                self._change_underscore(position)
+
         self._print_text(len(text))
 
         return "".join(self._output_text)
 
     def _change_bold(self, position):
-        # flush text just before token
-        self._print_text(position)
-
-        if self._bold:
-            self._output_text.append("[/b]")
-        else:
-            self._output_text.append("[b]")
-
-        # characters
+        self._do_mark(position, "[b]", "[/b]", self._bold)
         self._printed_character = position + 1
         self._bold = not self._bold
+
+    def _do_mark(self, position, open_mark, close_mark, status):
+        # flush text just before mark
+        self._print_text(position)
+
+        if status:
+            self._output_text.append(close_mark)
+        else:
+            self._output_text.append(open_mark)
+
+    def _change_underscore(self, position):
+        self._do_mark(position, "[u]", "[/u]", self._underscore)
+        self._printed_character = position + 1
+        self._underscore = not self._underscore
