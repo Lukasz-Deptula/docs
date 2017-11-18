@@ -31,10 +31,11 @@ class TestTextFormatter(unittest.TestCase):
         self.neutral_text = "some neutral text here"
 
     def _test_formatter(self, source_text, destination_text):
+        parsed_text = self.text_formatter.parse(source_text)
         self.assertEqual(destination_text,
-                         self.text_formatter.parse(source_text),
-                         "for text {} formatter shall return {}".format(source_text,
-                                                                        destination_text))
+                         parsed_text,
+                         "for text {} formatter shall return {}, got {}".format(
+                             source_text, destination_text, parsed_text))
 
     def test_empty_text(self):
         self._test_formatter("", "")
@@ -53,3 +54,27 @@ class TestTextFormatter(unittest.TestCase):
     def test_strikethrough_text(self):
         self._test_formatter("~~{}~~".format(self.neutral_text),
                              "[s]{}[/s]".format(self.neutral_text))
+
+    def test_header_1(self):
+        self._test_formatter("#{}".format(self.neutral_text),
+                            "[size=32]{}[/size]".format(self.neutral_text))
+
+    def test_header_5(self):
+        self._test_formatter("#####{}".format(self.neutral_text),
+                            "[size=16]{}[/size]".format(self.neutral_text))
+
+    def test_header_more_than_allowed(self):
+        self._test_formatter("######{}".format(self.neutral_text),
+                            "[size=16]{}[/size]".format(self.neutral_text))
+
+    def test_remove_leading_spaces(self):
+        self._test_formatter("#   {}".format(self.neutral_text),
+                             "[size=32]{}[/size]".format(self.neutral_text))
+
+    def test_header_nested_mark(self):
+        self._test_formatter("# **{}**".format(self.neutral_text),
+                             "[size=32][b]{}[/b][/size]".format(self.neutral_text))
+
+    def test_header_nested_mark_not_closed(self):
+        self._test_formatter("# **{}".format(self.neutral_text),
+                             "[size=32][b]{}[/b][/size]".format(self.neutral_text))
