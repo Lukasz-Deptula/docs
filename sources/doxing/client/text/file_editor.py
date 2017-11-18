@@ -14,13 +14,24 @@ def _on_text_change(label):
     return wrapped
 
 
+class OutputLabel(Label):
+    def __init__(self):
+        super(OutputLabel, self).__init__(valign="top", markup=True)
+
+        self.bind(width=self._wrap_text,
+                  texture_size=self._wrap_text)
+
+    def _wrap_text(self, *args):
+        self.text_size = self.size
+
+
 class FileEditor(GridLayout):
     def __init__(self):
         super(FileEditor, self).__init__(cols=2)
 
+        # TODO: add scrolls
         text_input = TextInput()
-        #TODO: text wrapping
-        output_label = Label(markup=True)
+        output_label = OutputLabel()
 
         text_input.bind(text=_on_text_change(output_label))
 
