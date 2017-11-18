@@ -20,8 +20,7 @@ class FileEditor(GridLayout):
 
         text_input = TextInput()
         #TODO: text wrapping
-        #TODO: text wrapping
-        output_label = Label()
+        output_label = Label(markup=True)
 
         text_input.bind(text=_on_text_change(output_label))
 
