@@ -120,7 +120,7 @@ class TextFormatter(object):
         if header_strength > MAX_HEADER_STRENGTH:
             header_strength = MAX_HEADER_STRENGTH
 
-        self._output_text.append("[size={}]{}[/size]".format(14 + (MAX_HEADER_STRENGTH - header_strength) * 4,
+        self._output_text.append("[size={}]{}[/size]".format(16 + (MAX_HEADER_STRENGTH - header_strength) * 4,
                                                              parsed_header_text))
 
 
