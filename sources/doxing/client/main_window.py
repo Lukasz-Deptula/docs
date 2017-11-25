@@ -3,12 +3,15 @@ from kivy.uix.dropdown import DropDown
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.treeview import TreeView, TreeViewLabel
 
+from doxing.client.context import ContextualObject
 from doxing.client.text.file_editor import FileEditor
 
 
-class FileNavigator(TreeView):
-    def __init__(self):
-        super(FileNavigator, self).__init__(hide_root=True)
+class FileNavigator(TreeView, ContextualObject):
+    def __init__(self, **kwargs):
+        super(FileNavigator, self).__init__(hide_root=True, **kwargs)
+
+        self._ctxt.file_navigator = self
 
         local_documents = TreeViewLabel(text="Local Documents")
         self.add_node(local_documents)
@@ -24,9 +27,11 @@ class FileNavigator(TreeView):
         self.add_node(TreeViewLabel(text="TBD"), parent=remote_documents)
 
 
-class TopMenu(GridLayout):
-    def __init__(self):
-        super(TopMenu, self).__init__(rows=1, size_hint_y=None, height=25)
+class TopMenu(GridLayout, ContextualObject):
+    def __init__(self, **kwargs):
+        super(TopMenu, self).__init__(rows=1, size_hint_y=None, height=25, **kwargs)
+
+        self._ctxt.top_menu = self
 
         self._init_file_menu()
 
@@ -51,13 +56,14 @@ class TopMenu(GridLayout):
         self.add_widget(file_button)
 
 
-class MainWindow(GridLayout):
-    def __init__(self):
-        super(MainWindow, self).__init__(rows=2)
+class MainWindow(GridLayout, ContextualObject):
+    def __init__(self, **kwargs):
+        super(MainWindow, self).__init__(rows=2, **kwargs)
 
-        self.add_widget(TopMenu())
+        self._ctxt.main_window = self
+        self.add_widget(TopMenu(ctxt=self._ctxt))
 
         content = GridLayout(cols=2)
-        content.add_widget(FileNavigator())
-        content.add_widget(FileEditor())
+        content.add_widget(FileNavigator(ctxt=self._ctxt))
+        content.add_widget(FileEditor(ctxt=self._ctxt))
         self.add_widget(content)

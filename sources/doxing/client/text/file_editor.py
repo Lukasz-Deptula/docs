@@ -2,6 +2,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 
+from doxing.client.context import ContextualObject
 from doxing.client.text.text_formatter import TextFormatter
 
 
@@ -25,9 +26,9 @@ class OutputLabel(Label):
         self.text_size = self.size
 
 
-class FileEditor(GridLayout):
-    def __init__(self):
-        super(FileEditor, self).__init__(cols=2)
+class FileEditor(GridLayout, ContextualObject):
+    def __init__(self, **kwargs):
+        super(FileEditor, self).__init__(cols=2, **kwargs)
 
         # TODO: add scrolls
         text_input = TextInput()
