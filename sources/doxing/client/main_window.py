@@ -4,7 +4,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.spinner import Spinner
-from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
+from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem, TabbedPanelHeader
 from kivy.uix.textinput import TextInput
 from kivy.uix.treeview import TreeView, TreeViewLabel
 
@@ -140,19 +140,17 @@ class FilesEditor(TabbedPanel, ContextualObject):
         super(FilesEditor, self).__init__(do_default_tab=False, **kwargs)
 
         self._ctxt.files_editor = self
-
-        # TODO: remove that, provide default cool looking tab
-        default_file = TabbedPanelItem()
-        default_file.add_widget(TextFileEditor(ctxt=self._ctxt, document=Document()))
-        self.add_widget(default_file)
+        # TODO: provide default cool looking tab
 
     def open_file(self, document):
         """
         :type document: doxing.client.document.Document
         """
         opened_file = TabbedPanelItem()
+        opened_file.text = document.name
         opened_file.add_widget(TextFileEditor(ctxt=self._ctxt, document=Document()))
         self.add_widget(opened_file)
+        self.switch_to(opened_file)
 
 
 class MainWindow(GridLayout, ContextualObject):
