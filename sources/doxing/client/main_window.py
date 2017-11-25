@@ -1,10 +1,15 @@
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.label import Label
+from kivy.uix.popup import Popup
+from kivy.uix.spinner import Spinner
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
+from kivy.uix.textinput import TextInput
 from kivy.uix.treeview import TreeView, TreeViewLabel
 
 from doxing.client.context import ContextualObject
+from doxing.client.document import Document, DocumentLocation
 from doxing.client.text.file_editor import TextFileEditor
 
 
@@ -56,7 +61,7 @@ class NewFileButton(TopMenuButton):
     def _on_release(self, button):
         #TODO: action
         self._ctxt.top_menu.file_menu.dropdown.select(self)
-        self._ctxt.files_editor.open_new_file()
+        NewFilePopup(ctxt=self._ctxt).open()
 
 
 class SaveFileButton(TopMenuButton):
@@ -95,6 +100,41 @@ class TopMenu(GridLayout, ContextualObject):
         self.add_widget(self.file_menu)
 
 
+class NewFilePopup(Popup, ContextualObject):
+    def __init__(self, **kwargs):
+        super(NewFilePopup, self).__init__(title='New file', size_hint=(None, None), size=(400, 400), **kwargs)
+
+        self.form = GridLayout(cols=2)
+        self.form.add_widget(Label(text="Name"))
+        self.name_input = TextInput()
+        self.form.add_widget(self.name_input)
+        self.form.add_widget(Label(text="Location"))
+        self.location_input = Spinner(text="Local", values=("Local",))
+        self.form.add_widget(self.location_input)
+        create_button = Button(text="Create")
+        create_button.bind(on_release=self._on_create)
+        cancel_button = Button(text="Cancel")
+        cancel_button.bind(on_release=self.dismiss)
+        self.form.add_widget(cancel_button)
+        self.form.add_widget(create_button)
+        self.add_widget(self.form)
+
+    def _on_create(self, *args, **kwargs):
+        name = self.name_input.text
+        location = {"Local": DocumentLocation.LOCAL_DB}.get(self.location_input.text, None)
+        self.dismiss()
+
+        # TODO: error handling, warning messages?
+        if not name or not location:
+            return
+
+        document = Document()
+        document.name = name
+        document.storage_type = location
+
+        self._ctxt.files_editor.open_file(document)
+
+
 class FilesEditor(TabbedPanel, ContextualObject):
     def __init__(self, **kwargs):
         super(FilesEditor, self).__init__(do_default_tab=False, **kwargs)
@@ -103,12 +143,15 @@ class FilesEditor(TabbedPanel, ContextualObject):
 
         # TODO: remove that, provide default cool looking tab
         default_file = TabbedPanelItem()
-        default_file.add_widget(TextFileEditor(ctxt=self._ctxt))
+        default_file.add_widget(TextFileEditor(ctxt=self._ctxt, document=Document()))
         self.add_widget(default_file)
 
-    def open_new_file(self):
+    def open_file(self, document):
+        """
+        :type document: doxing.client.document.Document
+        """
         opened_file = TabbedPanelItem()
-        opened_file.add_widget(TextFileEditor(ctxt=self._ctxt))
+        opened_file.add_widget(TextFileEditor(ctxt=self._ctxt, document=Document()))
         self.add_widget(opened_file)
 
 
