@@ -1,11 +1,7 @@
-import kivy
+from kivy.app import App
 
 from doxing.client.context import Context
 from doxing.client.main_window import MainWindow
-
-kivy.require('1.0.7')
-
-from kivy.app import App
 
 
 class MainApp(App):
