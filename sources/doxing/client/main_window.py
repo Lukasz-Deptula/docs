@@ -28,33 +28,71 @@ class FileNavigator(TreeView, ContextualObject):
         self.add_node(TreeViewLabel(text="TBD"), parent=remote_documents)
 
 
+class TopMenuButton(Button, ContextualObject):
+    TEXT = ""
+    ACTIONS = []
+
+    def __init__(self, **kwargs):
+        super(TopMenuButton, self).__init__(text=self.TEXT, size_hint_y=None, height=25, **kwargs)
+
+        for action in self.ACTIONS:
+            self.bind(**{action: getattr(self, '_' + action)})
+
+
+class OpenFileButton(TopMenuButton):
+    TEXT = "Open File"
+    ACTIONS = ["on_release"]
+
+    def _on_release(self, button):
+        #TODO: action
+        self._ctxt.top_menu.file_menu.dropdown.select(self)
+        print("Open File pressed")
+
+
+class NewFileButton(TopMenuButton):
+    TEXT = "New File"
+    ACTIONS = ["on_release"]
+
+    def _on_release(self, button):
+        #TODO: action
+        self._ctxt.top_menu.file_menu.dropdown.select(self)
+        print("New File pressed")
+
+
+class SaveFileButton(TopMenuButton):
+    TEXT = "Save File"
+    ACTIONS = ["on_release"]
+
+    def _on_release(self, button):
+        #TODO: action
+        self._ctxt.top_menu.file_menu.dropdown.select(self)
+        print("Save File pressed")
+
+
+class FileMenu(TopMenuButton):
+    TEXT = "File"
+    ACTIONS = ["on_release"]
+
+    def __init__(self, **kwargs):
+        super(FileMenu, self).__init__(**kwargs)
+
+        self.dropdown = DropDown()
+        self.dropdown.add_widget(NewFileButton(ctxt=self._ctxt))
+        self.dropdown.add_widget(OpenFileButton(ctxt=self._ctxt))
+        self.dropdown.add_widget(SaveFileButton(ctxt=self._ctxt))
+
+    def _on_release(self, *args, **kwargs):
+        self.dropdown.open(*args, **kwargs)
+
+
 class TopMenu(GridLayout, ContextualObject):
     def __init__(self, **kwargs):
         super(TopMenu, self).__init__(rows=1, size_hint_y=None, height=25, **kwargs)
 
         self._ctxt.top_menu = self
 
-        self._init_file_menu()
-
-    def _init_file_menu(self):
-        dropdown = DropDown()
-
-        new_file = Button(text='New file', size_hint_y=None, height=25)
-        new_file.bind(on_release=lambda btn: dropdown.select(btn.text))
-        dropdown.add_widget(new_file)
-
-        open_file = Button(text='Open file', size_hint_y=None, height=25)
-        open_file.bind(on_release=lambda btn: dropdown.select(btn.text))
-        dropdown.add_widget(open_file)
-
-        save_file = Button(text='Save file', size_hint_y=None, height=25)
-        save_file.bind(on_release=lambda btn: dropdown.select(btn.text))
-        dropdown.add_widget(save_file)
-
-        file_button = Button(text='File', size_hint_y=None, height=25)
-        file_button.bind(on_release=lambda *a, **k: dropdown.open(*a, **k))
-
-        self.add_widget(file_button)
+        self.file_menu = FileMenu(ctxt=self._ctxt)
+        self.add_widget(self.file_menu)
 
 
 class FilesEditor(TabbedPanel, ContextualObject):
