@@ -14,6 +14,9 @@ class Context(object):
         self.file_navigator = None
         """:type: doxing.client.main_window.FileNavigator"""
 
+        self.files_editor = None
+        """:type: doxing.client.main_window.FilesEditor"""
+
 
 class ContextualObject(object):
     def __init__(self, ctxt):

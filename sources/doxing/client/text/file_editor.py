@@ -26,9 +26,9 @@ class OutputLabel(Label):
         self.text_size = self.size
 
 
-class FileEditor(GridLayout, ContextualObject):
+class TextFileEditor(GridLayout, ContextualObject):
     def __init__(self, **kwargs):
-        super(FileEditor, self).__init__(cols=2, **kwargs)
+        super(TextFileEditor, self).__init__(cols=2, **kwargs)
 
         # TODO: add scrolls
         text_input = TextInput()

@@ -1,10 +1,11 @@
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.uix.treeview import TreeView, TreeViewLabel
 
 from doxing.client.context import ContextualObject
-from doxing.client.text.file_editor import FileEditor
+from doxing.client.text.file_editor import TextFileEditor
 
 
 class FileNavigator(TreeView, ContextualObject):
@@ -56,6 +57,18 @@ class TopMenu(GridLayout, ContextualObject):
         self.add_widget(file_button)
 
 
+class FilesEditor(TabbedPanel, ContextualObject):
+    def __init__(self, **kwargs):
+        super(FilesEditor, self).__init__(do_default_tab=False, **kwargs)
+
+        self._ctxt.files_editor = self
+
+        # TODO: remove that, provide default cool looking tab
+        default_file = TabbedPanelItem()
+        default_file.add_widget(TextFileEditor(ctxt=self._ctxt))
+        self.add_widget(default_file)
+
+
 class MainWindow(GridLayout, ContextualObject):
     def __init__(self, **kwargs):
         super(MainWindow, self).__init__(rows=2, **kwargs)
@@ -65,5 +78,5 @@ class MainWindow(GridLayout, ContextualObject):
 
         content = GridLayout(cols=2)
         content.add_widget(FileNavigator(ctxt=self._ctxt))
-        content.add_widget(FileEditor(ctxt=self._ctxt))
+        content.add_widget(FilesEditor(ctxt=self._ctxt))
         self.add_widget(content)
