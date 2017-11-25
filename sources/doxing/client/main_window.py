@@ -56,7 +56,7 @@ class NewFileButton(TopMenuButton):
     def _on_release(self, button):
         #TODO: action
         self._ctxt.top_menu.file_menu.dropdown.select(self)
-        print("New File pressed")
+        self._ctxt.files_editor.open_new_file()
 
 
 class SaveFileButton(TopMenuButton):
@@ -105,6 +105,11 @@ class FilesEditor(TabbedPanel, ContextualObject):
         default_file = TabbedPanelItem()
         default_file.add_widget(TextFileEditor(ctxt=self._ctxt))
         self.add_widget(default_file)
+
+    def open_new_file(self):
+        opened_file = TabbedPanelItem()
+        opened_file.add_widget(TextFileEditor(ctxt=self._ctxt))
+        self.add_widget(opened_file)
 
 
 class MainWindow(GridLayout, ContextualObject):
