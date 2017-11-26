@@ -4,12 +4,13 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.spinner import Spinner
-from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem, TabbedPanelHeader
+from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.uix.textinput import TextInput
 from kivy.uix.treeview import TreeView, TreeViewLabel
 
 from doxing.client.context import ContextualObject
-from doxing.client.document import Document, DocumentLocation
+from doxing.client.db.connector import DocumentDao
+from doxing.client.document_dto import DocumentDTO, DocumentLocation
 from doxing.client.text.file_editor import TextFileEditor
 
 
@@ -19,18 +20,26 @@ class FileNavigator(TreeView, ContextualObject):
 
         self._ctxt.file_navigator = self
 
-        local_documents = TreeViewLabel(text="Local Documents")
-        self.add_node(local_documents)
-
-        text_documents = TreeViewLabel(text="Text Documents")
-
-        self.add_node(text_documents, parent=local_documents)
-        self.add_node(TreeViewLabel(text="document1"), parent=text_documents)
-        self.add_node(TreeViewLabel(text="document1"), parent=text_documents)
+        self.local_documents = TreeViewLabel(text="Local Documents")
+        self.add_node(self.local_documents)
 
         remote_documents = TreeViewLabel(text="Remote Documents")
         self.add_node(remote_documents)
-        self.add_node(TreeViewLabel(text="TBD"), parent=remote_documents)
+
+        self.reload_local_documents()
+
+    def reload_local_documents(self):
+        self._clear_local_documents()
+        self._load_local_documents()
+
+    def _clear_local_documents(self):
+        while self.local_documents.nodes:
+            self.remove_node(self.local_documents.nodes[0])
+
+    def _load_local_documents(self):
+        for document in DocumentDao().list():
+            self.add_node(TreeViewLabel(text="%s - %s" % (document.location, document.name)),
+                          parent=self.local_documents)
 
 
 class TopMenuButton(Button, ContextualObject):
@@ -71,7 +80,7 @@ class SaveFileButton(TopMenuButton):
     def _on_release(self, button):
         #TODO: action
         self._ctxt.top_menu.file_menu.dropdown.select(self)
-        print("Save File pressed")
+        self._ctxt.files_editor.save_current_file()
 
 
 class FileMenu(TopMenuButton):
@@ -128,11 +137,15 @@ class NewFilePopup(Popup, ContextualObject):
         if not name or not location:
             return
 
-        document = Document()
+        document = DocumentDTO()
         document.name = name
         document.storage_type = location
+        document.save()
 
         self._ctxt.files_editor.open_file(document)
+        # TODO: when having multiple storages only some storage needs to be reloaded. Propably reloading will need to
+        # be moved somewhere else, but now it's fine
+        self._ctxt.file_navigator.reload_local_documents()
 
 
 class FilesEditor(TabbedPanel, ContextualObject):
@@ -144,13 +157,17 @@ class FilesEditor(TabbedPanel, ContextualObject):
 
     def open_file(self, document):
         """
-        :type document: doxing.client.document.Document
+        :type document: doxing.client.document_dto.DocumentDTO
         """
         opened_file = TabbedPanelItem()
         opened_file.text = document.name
-        opened_file.add_widget(TextFileEditor(ctxt=self._ctxt, document=Document()))
+        opened_file.add_widget(TextFileEditor(ctxt=self._ctxt, document=document))
         self.add_widget(opened_file)
         self.switch_to(opened_file)
+
+    def save_current_file(self):
+        current_editor = self.current_tab.content
+        current_editor.save_file()
 
 
 class MainWindow(GridLayout, ContextualObject):

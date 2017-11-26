@@ -33,10 +33,14 @@ class TextFileEditor(GridLayout, ContextualObject):
         self.document = document
 
         # TODO: add scrolls
-        text_input = TextInput()
-        output_label = OutputLabel()
+        self.text_input = TextInput()
+        self.output_label = OutputLabel()
 
-        text_input.bind(text=_on_text_change(output_label))
+        self.text_input.bind(text=_on_text_change(self.output_label))
 
-        self.add_widget(text_input)
-        self.add_widget(output_label)
+        self.add_widget(self.text_input)
+        self.add_widget(self.output_label)
+
+    def save_file(self):
+        self.document.content = self.text_input.text
+        self.document.save()
