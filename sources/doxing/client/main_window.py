@@ -9,8 +9,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.treeview import TreeView, TreeViewLabel
 
 from doxing.client.context import ContextualObject
-from doxing.client.db.connector import DocumentDao
-from doxing.client.document_dto import DocumentDTO, DocumentLocation
+from doxing.client.data_model.document import DocumentDTO, DocumentLocation, DocumentDao
 from doxing.client.text.file_editor import TextFileEditor
 
 
@@ -157,7 +156,7 @@ class FilesEditor(TabbedPanel, ContextualObject):
 
     def open_file(self, document):
         """
-        :type document: doxing.client.document_dto.DocumentDTO
+        :type document: doxing.client.data_model.document.DocumentDTO
         """
         opened_file = TabbedPanelItem()
         opened_file.text = document.name
@@ -167,7 +166,11 @@ class FilesEditor(TabbedPanel, ContextualObject):
 
     def save_current_file(self):
         current_editor = self.current_tab.content
-        current_editor.save_file()
+        if current_editor:
+            current_editor.save_file()
+        else:
+            # TODO: warning?
+            pass
 
 
 class MainWindow(GridLayout, ContextualObject):
