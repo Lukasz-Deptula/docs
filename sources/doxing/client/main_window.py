@@ -1,3 +1,5 @@
+from functools import partial
+
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 from kivy.uix.gridlayout import GridLayout
@@ -37,8 +39,18 @@ class FileNavigator(TreeView, ContextualObject):
 
     def _load_local_documents(self):
         for document in DocumentDao().list():
-            self.add_node(TreeViewLabel(text="%s - %s" % (document.location, document.name)),
-                          parent=self.local_documents)
+            document_label = TreeViewLabel(text="%s - %s" % (document.location, document.name))
+
+            document_label.bind(on_touch_down=partial(self._open_document, document_location=document.location))
+            self.add_node(document_label, parent=self.local_documents)
+
+    def _open_document(self, touch, event, document_location):
+        if not event.is_double_tap:
+            return
+
+        document = DocumentDao().get(document_location)
+        self._ctxt.files_editor.open_file(document)
+
 
 
 class TopMenuButton(Button, ContextualObject):
@@ -158,6 +170,7 @@ class FilesEditor(TabbedPanel, ContextualObject):
         """
         :type document: doxing.client.data_model.document.DocumentDTO
         """
+        # TODO: prevent double openning same file
         opened_file = TabbedPanelItem()
         opened_file.text = document.name
         opened_file.add_widget(TextFileEditor(ctxt=self._ctxt, document=document))

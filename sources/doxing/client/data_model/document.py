@@ -100,3 +100,8 @@ class DocumentDao(Dao):
                 document.content = content
 
             db.session.commit()
+
+    @parse_to_document
+    def get(self, document_id):
+        with DatabaseConnector() as db:
+            return db.session.query(DocumentDbModel).filter(DocumentDbModel.document_id == document_id).first()

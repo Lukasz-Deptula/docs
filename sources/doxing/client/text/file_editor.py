@@ -41,6 +41,8 @@ class TextFileEditor(GridLayout, ContextualObject):
         self.add_widget(self.text_input)
         self.add_widget(self.output_label)
 
+        self.text_input.text = document.content
+
     def save_file(self):
         self.document.content = self.text_input.text
         self.document.save()
